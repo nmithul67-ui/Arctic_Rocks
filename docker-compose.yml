@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: guardpay-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./guardpay.db
+    networks:
+      - guardpay-net
+
+  mock_merchant:
+    build:
+      context: ./mock_merchant
+      dockerfile: Dockerfile
+    container_name: guardpay-merchant
+    ports:
+      - "8001:8000"
+    networks:
+      - guardpay-net
+
+  mcp_server:
+    build:
+      context: ./mcp_server
+      dockerfile: Dockerfile
+    container_name: guardpay-mcp
+    ports:
+      - "8002:8000"
+    command: ["python", "server.py", "--http"]
+    networks:
+      - guardpay-net
+    environment:
+      - BACKEND_URL=http://backend:8000
+      - MERCHANT_URL=http://mock_merchant:8000
+    depends_on:
+      - backend
+      - mock_merchant
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: guardpay-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+      - NEXT_PUBLIC_MERCHANT_URL=http://localhost:8001
+    depends_on:
+      - backend
+      - mock_merchant
+    networks:
+      - guardpay-net
+
+networks:
+  guardpay-net:
+    driver: bridge
