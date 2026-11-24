@@ -3,13 +3,13 @@ echo ========================================================
 echo Starting GuardPay Stack (Backend, Merchant, MCP, Frontend)
 echo ========================================================
 
-echo 1. Seeding default mandate...
-start "GuardPay Backend [Port 8000]" cmd /k "cd backend && python seed.py && uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload"
+echo 1. Seeding default mandate and starting Backend...
+start "GuardPay Backend [Port 8000]" cmd /k "cd backend && python seed.py && python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload"
 
 timeout /t 2 /nobreak > nul
 
 echo 2. Starting Mock Merchant...
-start "GuardPay Mock Merchant [Port 8001]" cmd /k "cd mock_merchant && uvicorn app.main:app --host 127.0.0.1 --port 8001 --reload"
+start "GuardPay Mock Merchant [Port 8001]" cmd /k "cd mock_merchant && python -m uvicorn app.main:app --host 127.0.0.1 --port 8001 --reload"
 
 timeout /t 2 /nobreak > nul
 
